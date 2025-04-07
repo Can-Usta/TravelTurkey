@@ -1,0 +1,71 @@
+package com.canusta.travelturkey.ui.splash
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.canusta.travelturkey.R
+import com.canusta.travelturkey.ui.custom.RetryDialog
+import com.canusta.travelturkey.ui.navigation.NavRoot
+
+@Composable
+fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel()){
+    val isDataReady by viewModel.isDataReady.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Navigate to home when data is ready
+    LaunchedEffect(isDataReady) {
+        if (isDataReady) {
+            navController.navigate(NavRoot.HOME.route) {
+                popUpTo(NavRoot.SPLASH.route) { inclusive = true }
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // App icon
+            Image(
+                painter = painterResource(id = R.drawable.travel_turkey_icon),
+                contentDescription = "App Icon",
+                modifier = Modifier.size(250.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Loading indicator
+            if (!isDataReady && errorMessage == null) {
+                CircularProgressIndicator()
+            }
+
+            // Hata varsa dialog
+            if (errorMessage != null) {
+                RetryDialog(
+                    errorMessage = errorMessage ?: "",
+                    onRetry = { viewModel.fetchData() }
+                )
+            }
+        }
+    }
+}

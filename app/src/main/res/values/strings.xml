@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TravelTurkey</string>
+    <string name="try_again">Tekrar Dene</string>
+    <string name="error">Hata</string>
 </resources>

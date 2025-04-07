@@ -5,6 +5,7 @@ import com.canusta.travelturkey.common.RootError
 import com.canusta.travelturkey.data.remote.api.CityApi
 import com.canusta.travelturkey.data.remote.model.CityResponse
 import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 class CityRepositoryImpl @Inject constructor(val cityApi: CityApi) : CityRepository {
@@ -19,6 +20,10 @@ class CityRepositoryImpl @Inject constructor(val cityApi: CityApi) : CityReposit
                 429 -> Resource.Error(RootError.Network.TOO_MANY_REQUESTS)
                 else -> Resource.Error(RootError.Network.UNKNOWN)
             }
+        }catch (e: IOException) {
+            Resource.Error(RootError.Network.NO_INTERNET_CONNECTION)
+        } catch (e: Exception) {
+            Resource.Error(RootError.Network.UNKNOWN)
         }
     }
 }
