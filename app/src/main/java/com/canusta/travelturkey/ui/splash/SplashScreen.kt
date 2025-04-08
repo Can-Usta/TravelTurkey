@@ -29,7 +29,6 @@ fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashView
     val isDataReady by viewModel.isDataReady.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    // Navigate to home when data is ready
     LaunchedEffect(isDataReady) {
         if (isDataReady) {
             navController.navigate(NavRoot.HOME.route) {
@@ -45,7 +44,7 @@ fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashView
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // App icon
+
             Image(
                 painter = painterResource(id = R.drawable.travel_turkey_icon),
                 contentDescription = "App Icon",
@@ -54,12 +53,10 @@ fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashView
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Loading indicator
             if (!isDataReady && errorMessage == null) {
                 CircularProgressIndicator()
             }
 
-            // Hata varsa dialog
             if (errorMessage != null) {
                 RetryDialog(
                     errorMessage = errorMessage ?: "",
