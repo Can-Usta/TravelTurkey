@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.canusta.travelturkey.R
-import com.canusta.travelturkey.ui.custom.RetryDialog
+import com.canusta.travelturkey.ui.component.RetryDialog
 import com.canusta.travelturkey.ui.navigation.NavRoot
 
 @Composable

@@ -1,4 +1,4 @@
-package com.canusta.travelturkey.ui.custom
+package com.canusta.travelturkey.ui.component
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -13,7 +13,7 @@ fun RetryDialog(
     onRetry: () -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = {}, // Dialog kapatılamasın
+        onDismissRequest = {},
         confirmButton = {
             Button(onClick = onRetry) {
                 Text(stringResource(R.string.try_again))
