@@ -4,6 +4,7 @@ import com.canusta.travelturkey.common.Resource
 import com.canusta.travelturkey.common.RootError
 import com.canusta.travelturkey.data.remote.api.CityApi
 import com.canusta.travelturkey.data.remote.model.City
+import com.canusta.travelturkey.data.remote.model.Location
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -46,6 +47,18 @@ class CityRepositoryImpl @Inject constructor(
             Resource.Success(_cachedCities.toList())
         } catch (e: Exception) {
             handleError(e)
+        }
+    }
+
+    override fun getLocationById(id: Int): Resource<Location, RootError.Network> {
+        val location = _cachedCities
+            .flatMap { it.locations }
+            .firstOrNull { it.id == id }
+
+        return if (location != null) {
+            Resource.Success(location)
+        } else {
+            Resource.Error(RootError.Network.UNKNOWN)
         }
     }
 

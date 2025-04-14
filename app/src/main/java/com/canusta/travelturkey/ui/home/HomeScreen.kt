@@ -3,9 +3,11 @@ package com.canusta.travelturkey.ui.home
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,27 +38,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.canusta.travelturkey.data.remote.model.City
+import com.canusta.travelturkey.ui.component.CustomErrorDialog
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
     val cities by viewModel.cities.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
-    LazyColumn {
-        itemsIndexed(cities) { index, city ->
-            CityCard(city = city)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn {
+            itemsIndexed(cities) { index, city ->
+                CityCard(city = city, navController = navController)
 
-            if (index == cities.lastIndex && cities.isNotEmpty()) {
-                LaunchedEffect(key1 = index) {
-                    viewModel.loadMore()
+                if (index == cities.lastIndex && cities.isNotEmpty()) {
+                    LaunchedEffect(key1 = index) {
+                        viewModel.loadMore()
+                    }
                 }
             }
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+        }
+
+        // 🔥 Hatalıysak burada dialog'u göster
+        if (!errorMessage.isNullOrEmpty()) {
+            CustomErrorDialog(
+                message = errorMessage!!,
+                onDismiss = { viewModel.clearError() }
+            )
         }
     }
 }
 
 @Composable
-fun CityCard(city: City) {
+fun CityCard(city: City, navController: NavController) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
     Card(
@@ -79,7 +108,7 @@ fun CityCard(city: City) {
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(8.dp))
                 city.locations.forEach { location ->
-                    LocationItem(locationName = location.name)
+                    LocationItem(locationName = location.name, locationId = location.id,navController = navController)
                 }
             }
         }
@@ -97,7 +126,11 @@ fun ExpandableIcon(isExpanded: Boolean, onToggle: () -> Unit) {
 }
 
 @Composable
-fun LocationItem(locationName: String) {
+fun LocationItem(
+    locationName: String,
+    locationId: Int,
+    navController: NavController
+) {
     var isFavorite by remember { mutableStateOf(false) }
 
     val iconColor by animateColorAsState(
@@ -108,7 +141,10 @@ fun LocationItem(locationName: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable {
+                navController.navigate("location_detail/$locationId")
+            },
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(6.dp)
     ) {
@@ -120,7 +156,6 @@ fun LocationItem(locationName: String) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = locationName, style = MaterialTheme.typography.bodyMedium)
-
             IconButton(onClick = { isFavorite = !isFavorite }) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
