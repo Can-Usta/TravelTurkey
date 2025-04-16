@@ -6,5 +6,5 @@ enum class NavRoot(val route: String) {
     LOCATION_DETAIL("location_detail/{locationId}"),
     FAVORITE("favorite"),
     CITY_MAP("city_map"),
-    LOCATION_MAP("location_map/{lat}/{lng}")
+    LOCATION_MAP("location_map/{locationId}")
 }

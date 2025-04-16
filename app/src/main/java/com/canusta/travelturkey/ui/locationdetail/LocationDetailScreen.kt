@@ -73,7 +73,7 @@ fun LocationDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(location?.name ?: "Lokasyon Detayı") },
+                title = { Text(location?.name ?: "${location?.name}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
@@ -127,9 +127,8 @@ fun LocationContent(location: Location, modifier: Modifier = Modifier, navContro
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { val lat = location.coordinates.lat.toFloat()
-                val lng = location.coordinates.lng.toFloat()
-                navController.navigate("location_map/$lat/$lng") },
+            onClick = {
+                navController.navigate("location_map/${location.id}") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Haritada Göster")

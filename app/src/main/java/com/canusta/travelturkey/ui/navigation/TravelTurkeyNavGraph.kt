@@ -32,14 +32,12 @@ fun TravelTurkeyNavGraph(
         }
         composable(
             route = NavRoot.LOCATION_MAP.route,
-            arguments = listOf(
-                navArgument("lat") { type = NavType.FloatType },
-                navArgument("lng") { type = NavType.FloatType })
-        ) {
+            arguments = listOf(navArgument("locationId"){type = NavType.IntType})
+        ) {backStackEntry ->
+            val locationId = backStackEntry.arguments?.getInt("locationId")
             LocationMapScreen(
                 navController = navController,
-                lat = it.arguments?.getFloat("lat"),
-                lng = it.arguments?.getFloat("lng")
+                locationId = locationId
             )
         }
     }
