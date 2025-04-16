@@ -9,11 +9,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.canusta.travelturkey.ui.home.HomeScreen
 import com.canusta.travelturkey.ui.locationdetail.LocationDetailScreen
+import com.canusta.travelturkey.ui.locationmap.LocationMapScreen
 import com.canusta.travelturkey.ui.splash.TravelTurkeySplashScreen
 
 @Composable
 fun TravelTurkeyNavGraph(
-    navController: NavHostController = rememberNavController()) {
+    navController: NavHostController = rememberNavController()
+) {
     NavHost(navController, startDestination = NavRoot.SPLASH.route) {
         composable(NavRoot.SPLASH.route) {
             TravelTurkeySplashScreen(navController)
@@ -27,6 +29,18 @@ fun TravelTurkeyNavGraph(
         ) { backStackEntry ->
             val locationId = backStackEntry.arguments?.getInt("locationId")
             LocationDetailScreen(locationId = locationId, navController)
+        }
+        composable(
+            route = NavRoot.LOCATION_MAP.route,
+            arguments = listOf(
+                navArgument("lat") { type = NavType.FloatType },
+                navArgument("lng") { type = NavType.FloatType })
+        ) {
+            LocationMapScreen(
+                navController = navController,
+                lat = it.arguments?.getFloat("lat"),
+                lng = it.arguments?.getFloat("lng")
+            )
         }
     }
 }

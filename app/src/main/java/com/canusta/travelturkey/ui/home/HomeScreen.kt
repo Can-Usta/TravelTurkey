@@ -73,7 +73,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
             }
         }
 
-        // 🔥 Hatalıysak burada dialog'u göster
         if (!errorMessage.isNullOrEmpty()) {
             CustomErrorDialog(
                 message = errorMessage!!,

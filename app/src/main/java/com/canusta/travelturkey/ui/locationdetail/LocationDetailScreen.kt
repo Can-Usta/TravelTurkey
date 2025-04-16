@@ -88,7 +88,8 @@ fun LocationDetailScreen(
                 location = it,
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                navController = navController
             )
         } ?: Box(
             modifier = Modifier
@@ -102,7 +103,7 @@ fun LocationDetailScreen(
 }
 
 @Composable
-fun LocationContent(location: Location, modifier: Modifier = Modifier) {
+fun LocationContent(location: Location, modifier: Modifier = Modifier, navController: NavController) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -126,7 +127,9 @@ fun LocationContent(location: Location, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { /* İşlevsellik buraya gelecek */ },
+            onClick = { val lat = location.coordinates.lat.toFloat()
+                val lng = location.coordinates.lng.toFloat()
+                navController.navigate("location_map/$lat/$lng") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Haritada Göster")

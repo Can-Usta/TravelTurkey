@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +20,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
+        buildConfigField("String","API_KEY","\"${properties.getProperty("API_KEY")}\"")
+        val apiKey = properties.getProperty("API_KEY")
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = apiKey
     }
 
     buildTypes {
@@ -38,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -84,4 +94,7 @@ dependencies {
 
     //Splash API
     implementation(libs.androidx.core.splashscreen)
+    //Google Maps
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
 }
