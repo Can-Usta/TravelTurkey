@@ -27,16 +27,15 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _expandedStates = MutableStateFlow<Map<Int, Boolean>>(emptyMap())
+    val expandedStates: StateFlow<Map<Int, Boolean>> = _expandedStates
+
     init {
         viewModelScope.launch {
             _isLoading.value = true
             when (val result = repository.getInitialCities()) {
                 is Resource.Success -> _cities.value = result.data
-                is Resource.Error -> {
-                    _errorMessage.value = when (val error = result.error) {
-                        is RootError.Network -> error.toLocalizedMessage()
-                    }
-                }
+                is Resource.Error -> _errorMessage.value = result.error.toLocalizedMessage()
             }
             _isLoading.value = false
         }
@@ -55,6 +54,16 @@ class HomeViewModel @Inject constructor(
             }
             _isLoading.value = false
         }
+    }
+
+    fun toggleCard(index: Int) {
+        _expandedStates.value = _expandedStates.value.toMutableMap().apply {
+            this[index] = !(this[index] ?: false)
+        }
+    }
+
+    fun collapseAll() {
+        _expandedStates.value = _expandedStates.value.mapValues { false }
     }
 
     fun clearError() {

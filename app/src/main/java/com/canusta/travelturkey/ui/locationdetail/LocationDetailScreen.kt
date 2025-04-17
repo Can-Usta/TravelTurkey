@@ -73,7 +73,7 @@ fun LocationDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(location?.name ?: "${location?.name}") },
+                title = { Text( "${location?.name}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")

@@ -40,11 +40,7 @@ class SplashViewModel @Inject constructor(
                     if (remaining > 0) delay(remaining)
                     _isDataReady.value = true
                 }
-                is Resource.Error -> {
-                    _errorMessage.value = when (val error = result.error) {
-                        is RootError.Network -> error.toLocalizedMessage()
-                    }
-                }
+                is Resource.Error -> _errorMessage.value = result.error.toLocalizedMessage()
             }
         }
     }

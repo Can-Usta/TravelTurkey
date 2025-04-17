@@ -27,12 +27,7 @@ class LocationDetailViewModel @Inject constructor(private val repository: CityRe
                 is Resource.Success -> {
                     _location.value = result.data
                 }
-                is Resource.Error -> {
-                    val error = result.error
-                    if (error is RootError.Network) {
-                        _errorMessage.value = error.toLocalizedMessage()
-                    }
-                }
+                is Resource.Error -> _errorMessage.value = result.error.toLocalizedMessage()
                 else -> {}
             }
         }
