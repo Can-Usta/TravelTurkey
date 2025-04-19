@@ -5,6 +5,6 @@ enum class NavRoot(val route: String) {
     HOME("home"),
     LOCATION_DETAIL("location_detail/{locationId}"),
     FAVORITE("favorite"),
-    CITY_MAP("city_map"),
+    CITY_MAP("city_map/{cityIndex}"),
     LOCATION_MAP("location_map/{locationId}")
 }

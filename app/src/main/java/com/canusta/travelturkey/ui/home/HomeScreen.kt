@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -34,14 +35,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -88,7 +88,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                         isExpanded = isExpanded,
                         onToggleExpand = {
                             viewModel.toggleCard(index)
-                        }
+                        },
+                        index = index
                     )
 
                     if (index == cities.lastIndex && cities.isNotEmpty()) {
@@ -127,7 +128,8 @@ fun CityCard(
     city: City,
     navController: NavController,
     isExpanded: Boolean,
-    onToggleExpand: () -> Unit
+    onToggleExpand: () -> Unit,
+    index : Int
 ) {
     val hasLocations = city.locations.isNotEmpty()
 
@@ -146,20 +148,41 @@ fun CityCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = city.city, style = MaterialTheme.typography.bodyMedium)
-
                 if (hasLocations) {
-                    ExpandableIcon(isExpanded = isExpanded, onToggle = onToggleExpand)
+                    ExpandableIcon(
+                        isExpanded = isExpanded,
+                        onToggle = onToggleExpand,
+                    )
                 }
+
+                Text(
+                    text = city.city,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Detay",
+                    modifier = Modifier
+                        .clickable {
+                            navController.navigate("city_map/$index")
+                        }
+                        .padding(start = 8.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
 
             if (isExpanded && hasLocations) {
                 Spacer(modifier = Modifier.height(8.dp))
                 city.locations.forEach { location ->
-                    LocationItem(locationName = location.name, locationId = location.id, navController = navController)
+                    LocationItem(
+                        locationName = location.name,
+                        locationId = location.id,
+                        navController = navController
+                    )
                 }
             }
         }
@@ -211,7 +234,7 @@ fun LocationItem(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis
             )
             IconButton(
                 onClick = { isFavorite = !isFavorite },
