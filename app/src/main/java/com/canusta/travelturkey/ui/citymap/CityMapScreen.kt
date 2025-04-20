@@ -3,27 +3,56 @@ package com.canusta.travelturkey.ui.citymap
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
+import com.canusta.travelturkey.R
 import com.canusta.travelturkey.data.remote.model.Location
+import com.canusta.travelturkey.ui.component.CustomErrorDialog
 import com.canusta.travelturkey.ui.component.GoToMyLocationFab
 import com.canusta.travelturkey.ui.locationmap.LocationPermissionHandler
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +63,7 @@ fun CityMapScreen(
 ) {
     val city by viewModel.city.collectAsState()
     val selectedIndex by viewModel.selectedLocationIndex.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val locations = city?.locations ?: emptyList()
     val selectedLocation = locations.getOrNull(selectedIndex)
@@ -59,7 +89,7 @@ fun CityMapScreen(
                     title = { Text(text = city?.city ?: "Şehir") },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Geri")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
                         }
                     }
                 )
@@ -73,48 +103,55 @@ fun CityMapScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = true),
-                    uiSettings = MapUiSettings(
-                        myLocationButtonEnabled = false,
-                        zoomControlsEnabled = false
-                    ),
-                    onMapLoaded = { isMapLoaded = true }
-                ) {
-                    locations.forEachIndexed { index, location ->
-                        Marker(
-                            state = MarkerState(
-                                position = LatLng(location.coordinates.lat, location.coordinates.lng)
-                            ),
-                            title = location.name,
-                            snippet = location.description,
-                            icon = if (index == selectedIndex)
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                            else null
-                        )
+                if(errorMessage != null) {
+                    CustomErrorDialog(errorMessage.toString()) {
+                        viewModel.clearErrorMessage()
+                    }
+                }
+                else{
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState,
+                        properties = MapProperties(isMyLocationEnabled = true),
+                        uiSettings = MapUiSettings(
+                            myLocationButtonEnabled = false,
+                            zoomControlsEnabled = false
+                        ),
+                        onMapLoaded = { isMapLoaded = true }
+                    ) {
+                        locations.forEachIndexed { index, location ->
+                            Marker(
+                                state = MarkerState(
+                                    position = LatLng(location.coordinates.lat, location.coordinates.lng)
+                                ),
+                                title = location.name,
+                                snippet = location.description,
+                                icon = if (index == selectedIndex)
+                                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                                else null
+                            )
+                        }
+                    }
+
+                    LazyRow(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(12.dp)
+                    ) {
+                        itemsIndexed(locations) { index, location ->
+                            LocationCard(
+                                location = location,
+                                onClick = {
+                                    viewModel.selectLocation(index)
+                                },
+                                onDetailClick = {
+                                    navController.navigate("location_detail/${location.id}")
+                                }
+                            )
+                        }
                     }
                 }
 
-                LazyRow(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(12.dp)
-                ) {
-                    itemsIndexed(locations) { index, location ->
-                        LocationCard(
-                            location = location,
-                            isSelected = index == selectedIndex,
-                            onClick = {
-                                viewModel.selectLocation(index)
-                            },
-                            onDetailClick = {
-                                navController.navigate("location_detail/${location.id}")
-                            }
-                        )
-                    }
-                }
             }
         }
     }
@@ -123,7 +160,6 @@ fun CityMapScreen(
 @Composable
 fun LocationCard(
     location: Location,
-    isSelected: Boolean,
     onClick: () -> Unit,
     onDetailClick: () -> Unit
 ) {
@@ -135,9 +171,18 @@ fun LocationCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            location.image?.let {
+
+            if(location.image != null){
                 Image(
-                    painter = rememberAsyncImagePainter(it),
+                    painter = rememberAsyncImagePainter(location.image),
+                    contentDescription = location.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                )
+            }else{
+                Image(
+                    painter = painterResource(R.drawable.no_image_found),
                     contentDescription = location.name,
                     modifier = Modifier
                         .fillMaxWidth()

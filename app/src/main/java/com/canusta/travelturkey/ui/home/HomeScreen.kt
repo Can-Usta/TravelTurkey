@@ -162,17 +162,19 @@ fun CityCard(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f)
                 )
+                if(hasLocations){
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Detay",
+                        modifier = Modifier
+                            .clickable {
+                                navController.navigate("city_map/$index")
+                            }
+                            .padding(start = 8.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Detay",
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("city_map/$index")
-                        }
-                        .padding(start = 8.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
             }
 
             if (isExpanded && hasLocations) {

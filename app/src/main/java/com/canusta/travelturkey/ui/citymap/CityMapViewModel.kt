@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.canusta.travelturkey.common.Resource
 import com.canusta.travelturkey.data.remote.model.City
 import com.canusta.travelturkey.data.remote.repository.CityRepository
+import com.canusta.travelturkey.util.toLocalizedMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,9 @@ class CityMapViewModel @Inject constructor(
     private val _selectedLocationIndex = MutableStateFlow(0)
     val selectedLocationIndex: StateFlow<Int> = _selectedLocationIndex
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
     init {
         val cityIndex = savedStateHandle.get<Int>("cityIndex") ?: 0
         viewModelScope.launch {
@@ -31,8 +35,8 @@ class CityMapViewModel @Inject constructor(
                 is Resource.Success -> {
                     _city.value = result.data.getOrNull(cityIndex)
                 }
-                else -> {
-                    _city.value = null // Hata durumu için fallback
+                is Resource.Error -> {
+                    _errorMessage.value = result.error.toLocalizedMessage()
                 }
             }
         }
@@ -40,5 +44,9 @@ class CityMapViewModel @Inject constructor(
 
     fun selectLocation(index: Int) {
         _selectedLocationIndex.value = index
+    }
+
+    fun clearErrorMessage(){
+        _errorMessage.value = null
     }
 }
