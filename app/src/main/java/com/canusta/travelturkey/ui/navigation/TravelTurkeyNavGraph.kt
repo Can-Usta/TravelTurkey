@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.canusta.travelturkey.ui.citymap.CityMapScreen
+import com.canusta.travelturkey.ui.favorite.FavoriteLocationScreen
 import com.canusta.travelturkey.ui.home.HomeScreen
 import com.canusta.travelturkey.ui.locationdetail.LocationDetailScreen
 import com.canusta.travelturkey.ui.locationmap.LocationMapScreen
@@ -46,6 +47,9 @@ fun TravelTurkeyNavGraph(
             arguments = listOf(navArgument("cityIndex") { type = NavType.IntType })
         ) {
             CityMapScreen(navController = navController)
+        }
+        composable(NavRoot.FAVORITE.route) {
+            FavoriteLocationScreen(navController = navController)
         }
     }
 }

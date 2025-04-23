@@ -46,8 +46,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.canusta.travelturkey.R
+import com.canusta.travelturkey.data.local.entity.FavoriteLocationEntity
 import com.canusta.travelturkey.data.remote.model.City
 import com.canusta.travelturkey.ui.component.CustomErrorDialog
+import com.canusta.travelturkey.ui.favorite.FavoriteLocationViewModel
+import com.canusta.travelturkey.ui.navigation.NavRoot
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +64,27 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Şehirler") })
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Şehirler")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(NavRoot.FAVORITE.route)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Favoriler",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            )
         },
         floatingActionButton = {
             if (anyExpanded) {
@@ -207,7 +230,12 @@ fun LocationItem(
     locationId: Int,
     navController: NavController
 ) {
+    val viewModel: FavoriteLocationViewModel = hiltViewModel()
     var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(locationId) {
+        isFavorite = viewModel.isFavorite(locationId)
+    }
 
     val iconColor by animateColorAsState(
         targetValue = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
@@ -218,9 +246,7 @@ fun LocationItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable {
-                navController.navigate("location_detail/$locationId")
-            },
+            .clickable { navController.navigate("location_detail/$locationId") },
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(6.dp)
     ) {
@@ -239,12 +265,22 @@ fun LocationItem(
                 overflow = TextOverflow.Ellipsis
             )
             IconButton(
-                onClick = { isFavorite = !isFavorite },
-                modifier = Modifier.padding(start = 8.dp)
+                onClick = {
+                    isFavorite = !isFavorite
+                    val location = FavoriteLocationEntity(
+                        id = locationId,
+                        name = locationName,
+                        description = "",
+                        image = null,
+                        lat = 0.0,
+                        lng = 0.0
+                    )
+                    viewModel.toggleFavorite(location, isFavorite)
+                }
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isFavorite) "Favoriden çıkar" else "Favorilere ekle",
+                    contentDescription = "Favori",
                     tint = iconColor
                 )
             }
