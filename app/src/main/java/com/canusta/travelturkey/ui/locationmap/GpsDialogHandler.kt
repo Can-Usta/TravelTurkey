@@ -12,11 +12,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.canusta.travelturkey.R
 
 @Composable
 fun GpsDialogHandler(
     isGpsEnabled: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(!isGpsEnabled) }
@@ -24,15 +26,15 @@ fun GpsDialogHandler(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { },
-            title = { Text("Konum Servisi Kapalı") },
-            text = { Text("Harita üzerinde konumunuzu görebilmek için lütfen GPS'i açın.") },
+            title = { Text(stringResource(R.string.location_service_is_off_text)) },
+            text = { Text(stringResource(R.string.please_turn_on_gps_to_see_your_location_on_the_map_text)) },
             confirmButton = {
                 Button(onClick = {
                     context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                     showDialog = false
                     onDismiss()
                 }) {
-                    Text("Ayarları Aç")
+                    Text(stringResource(R.string.open_settings_text))
                 }
             },
             dismissButton = {
@@ -40,7 +42,7 @@ fun GpsDialogHandler(
                     showDialog = false
                     onDismiss()
                 }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel_text))
                 }
             }
         )

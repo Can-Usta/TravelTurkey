@@ -1,6 +1,5 @@
 package com.canusta.travelturkey.ui.citymap
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,7 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -43,6 +44,7 @@ import com.canusta.travelturkey.R
 import com.canusta.travelturkey.data.remote.model.Location
 import com.canusta.travelturkey.ui.component.CustomErrorDialog
 import com.canusta.travelturkey.ui.component.GoToMyLocationFab
+import com.canusta.travelturkey.ui.locationmap.GpsDialogHandler
 import com.canusta.travelturkey.ui.locationmap.LocationPermissionHandler
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -54,7 +56,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-@SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CityMapScreen(
@@ -67,6 +68,8 @@ fun CityMapScreen(
 
     val locations = city?.locations ?: emptyList()
     val selectedLocation = locations.getOrNull(selectedIndex)
+    val context = LocalContext.current
+
 
     val cameraPositionState = rememberCameraPositionState()
     var isMapLoaded by remember { mutableStateOf(false) }
@@ -81,15 +84,18 @@ fun CityMapScreen(
             )
         }
     }
-
+    GpsDialogHandler(isGpsEnabled = viewModel.isLocationEnabled(context))
     LocationPermissionHandler {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = city?.city ?: "Şehir") },
+                    title = { Text(text = city?.city ?: stringResource(R.string.city_text)) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(
+                                R.string.back_text
+                            )
+                            )
                         }
                     }
                 )
@@ -141,9 +147,7 @@ fun CityMapScreen(
                         itemsIndexed(locations) { index, location ->
                             LocationCard(
                                 location = location,
-                                onClick = {
-                                    viewModel.selectLocation(index)
-                                },
+                                onClick = { viewModel.selectLocation(index) },
                                 onDetailClick = {
                                     navController.navigate("location_detail/${location.id}")
                                 }
@@ -200,7 +204,7 @@ fun LocationCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(onClick = onDetailClick) {
-                Text("Detaya Git")
+                Text(stringResource(R.string.go_to_detail_text))
             }
         }
     }

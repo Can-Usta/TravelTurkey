@@ -29,9 +29,7 @@ fun LocationMapView(
         )
     ) {
         Marker(
-            state = rememberMarkerState(position = coordinates),
-            title = "Ziyaret Noktası",
-            snippet = "Buradasınız"
+            state = rememberMarkerState(position = coordinates)
         )
     }
 }

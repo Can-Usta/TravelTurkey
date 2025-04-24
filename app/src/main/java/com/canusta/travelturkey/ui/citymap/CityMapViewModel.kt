@@ -1,5 +1,7 @@
 package com.canusta.travelturkey.ui.citymap
 
+import android.content.Context
+import android.location.LocationManager
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,5 +50,11 @@ class CityMapViewModel @Inject constructor(
 
     fun clearErrorMessage(){
         _errorMessage.value = null
+    }
+
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 }

@@ -14,17 +14,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,29 +37,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.canusta.travelturkey.R
 import com.canusta.travelturkey.data.remote.model.Location
+import com.canusta.travelturkey.ui.component.CustomAppBar
 import com.canusta.travelturkey.ui.component.CustomErrorDialog
+import com.canusta.travelturkey.ui.favorite.FavoriteLocationViewModel
 import com.canusta.travelturkey.ui.theme.PrimaryColor
+import com.canusta.travelturkey.util.toFavoriteEntity
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationDetailScreen(
     locationId: Int?,
     navController: NavController,
-    viewModel: LocationDetailViewModel = hiltViewModel()
+    viewModel: LocationDetailViewModel = hiltViewModel(),
+    favoriteViewModel: FavoriteLocationViewModel = hiltViewModel()
 ) {
     LaunchedEffect(locationId) {
         locationId?.let {
             viewModel.loadLocation(it)
         }
     }
+
     val location by viewModel.location.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(location?.id) {
+        location?.id?.let {
+            isFavorite = favoriteViewModel.isFavorite(it)
+        }
+    }
 
     if (!errorMessage.isNullOrEmpty()) {
         CustomErrorDialog(
@@ -72,14 +82,24 @@ fun LocationDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text( "${location?.name}") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
+            CustomAppBar(
+                title = location?.name.orEmpty(),
+                onBack = { navController.popBackStack() },
+                actions = {
+                    if (location != null) {
+                        IconButton(onClick = {
+                            isFavorite = !isFavorite
+                            val fav = location!!.toFavoriteEntity()
+                            favoriteViewModel.toggleFavorite(fav, isFavorite)
+                        }) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = stringResource(R.string.favorite_text),
+                                tint = PrimaryColor
+                            )
+                        }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
+                }
             )
         }
     ) { innerPadding ->
@@ -97,7 +117,7 @@ fun LocationDetailScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text("Lokasyon bilgisi bulunamadı.")
+            Text(stringResource(R.string.location_not_found_text))
         }
     }
 }
@@ -113,7 +133,7 @@ fun LocationContent(location: Location, modifier: Modifier = Modifier, navContro
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Açıklama",
+            text = stringResource(R.string.description_text),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -131,7 +151,7 @@ fun LocationContent(location: Location, modifier: Modifier = Modifier, navContro
                 navController.navigate("location_map/${location.id}") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Haritada Göster")
+            Text(text = stringResource(R.string.show_on_map_text))
         }
     }
 }
@@ -141,7 +161,7 @@ fun ImageCard(imageUrl: String?) {
     if (imageUrl.isNullOrBlank()) {
         Image(
             painter = painterResource(id = R.drawable.no_image_found),
-            contentDescription = "Görsel bulunamadı",
+            contentDescription = stringResource(R.string.image_not_found_text),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,7 +191,7 @@ fun ImageCard(imageUrl: String?) {
             isError -> {
                 Image(
                     painter = painterResource(id = R.drawable.no_image_found),
-                    contentDescription = "Görsel bulunamadı",
+                    contentDescription = stringResource(R.string.image_not_found_text),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -184,7 +204,7 @@ fun ImageCard(imageUrl: String?) {
 
         AsyncImage(
             model = imageUrl,
-            contentDescription = "Lokasyon görseli",
+            contentDescription = stringResource(R.string.location_image_text),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .matchParentSize()

@@ -5,7 +5,6 @@ import android.location.LocationManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.canusta.travelturkey.common.Resource
-import com.canusta.travelturkey.common.RootError
 import com.canusta.travelturkey.data.remote.model.Location
 import com.canusta.travelturkey.data.remote.repository.CityRepository
 import com.canusta.travelturkey.util.toLocalizedMessage

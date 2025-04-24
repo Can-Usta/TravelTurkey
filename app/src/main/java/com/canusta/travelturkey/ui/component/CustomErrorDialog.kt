@@ -8,21 +8,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.canusta.travelturkey.R
 
 @Composable
 fun CustomErrorDialog(message: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "Bir Hata Oluştu", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.error_text), style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Text(text = message, style = MaterialTheme.typography.bodyMedium)
         },
         confirmButton = {
             Text(
-                text = "Tamam",
+                text = stringResource(R.string.ok_text),
                 modifier = Modifier
                     .padding(8.dp)
                     .clickable { onDismiss() },

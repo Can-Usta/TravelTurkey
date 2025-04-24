@@ -11,7 +11,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,13 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.canusta.travelturkey.R
 import com.canusta.travelturkey.ui.component.CustomErrorDialog
 import com.canusta.travelturkey.ui.component.GetDirectionsButton
 import com.canusta.travelturkey.ui.component.GoToMyLocationFab
-import com.canusta.travelturkey.ui.theme.PrimaryColor
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -49,7 +49,7 @@ fun LocationMapScreen(
         locationId?.let(viewModel::loadLocationForMap)
     }
 
-    GpsDialogHandler(isGpsEnabled = viewModel.isLocationEnabled(context),{})
+    GpsDialogHandler(isGpsEnabled = viewModel.isLocationEnabled(context))
 
     Scaffold(
         topBar = {
@@ -77,7 +77,7 @@ fun LocationMapScreen(
                             .padding(bottom = 32.dp)
                     )
                 } ?: Text(
-                    text = "Geçerli konum bilgisi alınamadı.",
+                    text = stringResource(R.string.unable_to_obtain_valid_location_information_text),
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -97,7 +97,6 @@ fun LocationTopBar(title: String, onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
+        }
     )
 }

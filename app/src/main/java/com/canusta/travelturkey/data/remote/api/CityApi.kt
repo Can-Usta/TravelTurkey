@@ -1,7 +1,6 @@
 package com.canusta.travelturkey.data.remote.api
 
 import com.canusta.travelturkey.data.remote.model.CityResponse
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 

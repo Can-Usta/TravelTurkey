@@ -43,9 +43,10 @@ fun TravelTurkeyNavGraph(
             )
         }
         composable(
-            route = "city_map/{cityIndex}",
+            route = NavRoot.CITY_MAP.route,
             arguments = listOf(navArgument("cityIndex") { type = NavType.IntType })
-        ) {
+        ) { backStackEntry ->
+            val cityIndex = backStackEntry.arguments?.getInt("cityIndex")
             CityMapScreen(navController = navController)
         }
         composable(NavRoot.FAVORITE.route) {

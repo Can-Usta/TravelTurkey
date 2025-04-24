@@ -13,8 +13,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.canusta.travelturkey.R
 import com.canusta.travelturkey.ui.locationmap.GpsDialogHandler
 import com.canusta.travelturkey.util.getLastKnownLocation
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,7 +28,7 @@ fun GoToMyLocationFab(cameraPositionState: CameraPositionState) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var showGpsDialog by remember { mutableStateOf(false) } // 👉 GPS popup kontrolü
+    var showGpsDialog by remember { mutableStateOf(false) }
 
     if (showGpsDialog) {
         GpsDialogHandler(isGpsEnabled = false) {
@@ -40,7 +42,7 @@ fun GoToMyLocationFab(cameraPositionState: CameraPositionState) {
             val isGpsEnabled = locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) == true
 
             if (!isGpsEnabled) {
-                showGpsDialog = true // ⛳ trigger composable render from state
+                showGpsDialog = true
                 return@FloatingActionButton
             }
 
@@ -68,6 +70,6 @@ fun GoToMyLocationFab(cameraPositionState: CameraPositionState) {
         },
         modifier = Modifier.padding(16.dp)
     ) {
-        Icon(Icons.Filled.LocationOn, contentDescription = "Konumuma Git")
+        Icon(Icons.Filled.LocationOn, contentDescription = stringResource(R.string.go_to_location_text))
     }
 }
