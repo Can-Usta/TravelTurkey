@@ -32,15 +32,30 @@ class CityMapViewModel @Inject constructor(
 
     init {
         val cityIndex = savedStateHandle.get<Int>("cityIndex") ?: 0
+        loadCityByIndex(cityIndex)
+    }
+
+    private fun loadCityByIndex(index: Int) {
         viewModelScope.launch {
-            when (val result = repository.getInitialCities()) {
-                is Resource.Success -> {
-                    _city.value = result.data.getOrNull(cityIndex)
-                }
-                is Resource.Error -> {
-                    _errorMessage.value = result.error.toLocalizedMessage()
+            var currentIndex = 0
+            for (page in 1..4) {
+                when (val result = repository.getCitiesByPage(page)) {
+                    is Resource.Success -> {
+                        val cities = result.data
+                        if (index < currentIndex + cities.size) {
+                            _city.value = cities[index - currentIndex]
+                            return@launch
+                        } else {
+                            currentIndex += cities.size
+                        }
+                    }
+                    is Resource.Error -> {
+                        _errorMessage.value = result.error.toLocalizedMessage()
+                        return@launch
+                    }
                 }
             }
+            _errorMessage.value = "Şehir bulunamadı"
         }
     }
 

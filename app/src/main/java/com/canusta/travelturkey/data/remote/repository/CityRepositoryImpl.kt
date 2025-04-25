@@ -13,52 +13,30 @@ class CityRepositoryImpl @Inject constructor(
     private val cityApi: CityApi
 ) : CityRepository {
 
-    private val _cachedCities = mutableListOf<City>()
-    private var totalPage = 1
-    private var currentPage = 1
-
-    override suspend fun getInitialCities(): Resource<List<City>, RootError.Network> {
-        if (_cachedCities.isNotEmpty()) {
-            return Resource.Success(_cachedCities.toList())
-        }
-
+    override suspend fun getCitiesByPage(page: Int): Resource<List<City>, RootError.Network> {
         return try {
-            val response = cityApi.getCities(1)
-            _cachedCities.clear()
-            _cachedCities.addAll(response.data)
-            totalPage = response.totalPage
-            currentPage = 1
-            Resource.Success(_cachedCities.toList())
+            val response = cityApi.getCities(page)
+            Resource.Success(response.data)
         } catch (e: Exception) {
             handleError(e)
         }
     }
 
-    override suspend fun loadNextPage(): Resource<List<City>, RootError.Network> {
-        if (currentPage >= totalPage) {
-            return Resource.Success(_cachedCities.toList())
-        }
-
+    override suspend fun getLocationById(id: Int): Resource<Location, RootError.Network> {
         return try {
-            val nextPage = currentPage + 1
-            val response = cityApi.getCities(nextPage)
-            _cachedCities.addAll(response.data)
-            currentPage = nextPage
-            Resource.Success(_cachedCities.toList())
+            for (page in 1..4) {
+                val response = cityApi.getCities(page)
+                val location = response.data
+                    .flatMap { it.locations }
+                    .firstOrNull { it.id == id }
+
+                if (location != null) {
+                    return Resource.Success(location)
+                }
+            }
+            Resource.Error(RootError.Network.SERVER_ERROR)
         } catch (e: Exception) {
             handleError(e)
-        }
-    }
-
-    override fun getLocationById(id: Int): Resource<Location, RootError.Network> {
-        val location = _cachedCities
-            .flatMap { it.locations }
-            .firstOrNull { it.id == id }
-
-        return if (location != null) {
-            Resource.Success(location)
-        } else {
-            Resource.Error(RootError.Network.UNKNOWN)
         }
     }
 

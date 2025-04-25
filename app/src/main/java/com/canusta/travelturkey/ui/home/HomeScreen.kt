@@ -1,5 +1,6 @@
 package com.canusta.travelturkey.ui.home
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,13 +55,20 @@ import com.canusta.travelturkey.ui.navigation.NavRoot
 import com.canusta.travelturkey.ui.theme.PrimaryColor
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavController, initialCities:List<City>?) {
     val cities by viewModel.cities.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val expandedStates by viewModel.expandedStates.collectAsState()
 
     val anyExpanded = expandedStates.any { it.value }
+
+    LaunchedEffect(initialCities) {
+        if (!initialCities.isNullOrEmpty()) {
+            viewModel.setInitialCities(initialCities)
+            Log.d("HomeScreen", "Initial cities loaded")
+        }
+    }
 
     Scaffold(
         topBar = {

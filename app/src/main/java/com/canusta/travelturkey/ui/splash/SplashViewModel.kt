@@ -3,7 +3,7 @@ package com.canusta.travelturkey.ui.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.canusta.travelturkey.common.Resource
-import com.canusta.travelturkey.common.RootError
+import com.canusta.travelturkey.data.remote.model.City
 import com.canusta.travelturkey.data.remote.repository.CityRepository
 import com.canusta.travelturkey.util.toLocalizedMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +24,9 @@ class SplashViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _initialCities = MutableStateFlow<List<City>>(emptyList())
+    val initialCities: StateFlow<List<City>> = _initialCities
+
     init {
         fetchData()
     }
@@ -33,14 +36,17 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch {
             val startTime = System.currentTimeMillis()
 
-            when (val result = repository.getInitialCities()) {
+            when (val result = repository.getCitiesByPage(1)) {
                 is Resource.Success -> {
+                    _initialCities.value = result.data
                     val elapsed = System.currentTimeMillis() - startTime
                     val remaining = 3000L - elapsed
                     if (remaining > 0) delay(remaining)
                     _isDataReady.value = true
                 }
-                is Resource.Error -> _errorMessage.value = result.error.toLocalizedMessage()
+                is Resource.Error -> {
+                    _errorMessage.value = result.error.toLocalizedMessage()
+                }
             }
         }
     }

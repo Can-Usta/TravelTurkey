@@ -1,6 +1,9 @@
 package com.canusta.travelturkey.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,6 +15,7 @@ import com.canusta.travelturkey.ui.favorite.FavoriteLocationScreen
 import com.canusta.travelturkey.ui.home.HomeScreen
 import com.canusta.travelturkey.ui.locationdetail.LocationDetailScreen
 import com.canusta.travelturkey.ui.locationmap.LocationMapScreen
+import com.canusta.travelturkey.ui.splash.SplashViewModel
 import com.canusta.travelturkey.ui.splash.TravelTurkeySplashScreen
 
 @Composable
@@ -23,7 +27,9 @@ fun TravelTurkeyNavGraph(
             TravelTurkeySplashScreen(navController)
         }
         composable(NavRoot.HOME.route) {
-            HomeScreen(navController = navController)
+            val splashViewModel: SplashViewModel = hiltViewModel()
+            val initialCities by splashViewModel.initialCities.collectAsState()
+            HomeScreen(navController = navController, initialCities = initialCities)
         }
         composable(
             route = NavRoot.LOCATION_DETAIL.route,
@@ -46,7 +52,6 @@ fun TravelTurkeyNavGraph(
             route = NavRoot.CITY_MAP.route,
             arguments = listOf(navArgument("cityIndex") { type = NavType.IntType })
         ) { backStackEntry ->
-            val cityIndex = backStackEntry.arguments?.getInt("cityIndex")
             CityMapScreen(navController = navController)
         }
         composable(NavRoot.FAVORITE.route) {

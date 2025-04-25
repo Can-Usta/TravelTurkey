@@ -6,7 +6,6 @@ import com.canusta.travelturkey.data.remote.model.City
 import com.canusta.travelturkey.data.remote.model.Location
 
 interface CityRepository {
-    suspend fun getInitialCities(): Resource<List<City>, RootError>
-    suspend fun loadNextPage(): Resource<List<City>, RootError>
-    fun getLocationById(id: Int): Resource<Location, RootError>?
+    suspend fun getCitiesByPage(page: Int): Resource<List<City>, RootError>
+    suspend fun getLocationById(id: Int): Resource<Location, RootError>
 }

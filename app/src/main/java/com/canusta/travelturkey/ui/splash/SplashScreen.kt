@@ -1,5 +1,6 @@
 package com.canusta.travelturkey.ui.splash
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,15 +28,23 @@ import com.canusta.travelturkey.ui.component.RetryDialog
 import com.canusta.travelturkey.ui.navigation.NavRoot
 
 @Composable
-fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel()){
+fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel()) {
     val isDataReady by viewModel.isDataReady.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val initialCities by viewModel.initialCities.collectAsState()
+    val counter = remember { mutableStateOf(0) }
 
     LaunchedEffect(isDataReady) {
         if (isDataReady) {
+            navController.currentBackStackEntry?.savedStateHandle?.set("initialCities", initialCities)
+
             navController.navigate(NavRoot.HOME.route) {
                 popUpTo(NavRoot.SPLASH.route) { inclusive = true }
+                launchSingleTop = true
+                restoreState = true
             }
+            counter.value += 1
+            Log.d("TravelTurkeySplashScreen", "Navigated to Home $counter ")
         }
     }
 
@@ -44,7 +55,6 @@ fun TravelTurkeySplashScreen(navController: NavController, viewModel: SplashView
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
             Image(
                 painter = painterResource(id = R.drawable.travel_turkey_icon),
                 contentDescription = "App Icon",
