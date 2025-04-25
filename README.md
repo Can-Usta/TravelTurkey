@@ -32,7 +32,15 @@ Bu Android uygulaması, Jetpack Compose kullanarak modern UI, MVVM ile yönetile
 
 ## Ekran Görüntüleri
 
+| Ana Sayfa | Şehir Haritası | Detay Sayfası |
+|-----------|----------------|----------------|
+| <img src="app/assets/home_screen_image.png" width="250"/> | <img src="app/assets/city_map_screen_image.png" width="250"/> | <img src="app/assets/detail_screen_image.png" width="250"/> |
 
+| Konum Haritası | Favoriler |
+|----------------|-----------|
+| <img src="app/assets/location_map_screen_image.png" width="250"/> | <img src="app/assets/favorite_screen_image.png" width="250"/> |
+
+---
 
 ## Kullanılan Teknolojiler ve Mimariler
 
